@@ -25,4 +25,21 @@
 -Başvuru tarihi
 -Başvuru Durumu
 
+UPDATE
+
+Controller fonksiyonları ayrıldı
+Admin tokeni oluşturularak tüm testler token varken ve yokken olarak yapıldı
+ 1. Video Yüklendi
+ 2. Soru Eklendi
+ 3. Sorular Listelendi
+ 4. Sorular Güncellendi 
+ 5. Soru Silindi
+ 6. Mülakat Oluşturuldu
+ 7. Mülakatlar Listelendi
+ 8. Mülakat Güncellendi
+ 9. Mülakat Silindi
+10. Mülakata Girildi
+
+Hata görünmüyor şimdilik...
+
 
