@@ -1,17 +1,12 @@
 import mongoose, { Document, Schema } from 'mongoose';
-import { IQuestion } from './Question';
 
 // Mülakat arayüzü
 export interface IInterview extends Document {
   title: string;
-  questions: IQuestion[]; // Mülakata ait sorular
-  createdBy: mongoose.Schema.Types.ObjectId; // Mülakatı oluşturan admin
-  candidateResponses: {
-    candidateId: string;
-    responseVideoUrl: string;
-    submittedAt: Date;
-  }[];
+  questions: mongoose.Schema.Types.ObjectId[]; // Soruların ID'leri
   createdAt: Date;
+  expirationDate: Date; // Mülakatın pasif olma tarihi
+  createdBy: mongoose.Schema.Types.ObjectId; // Bu alanı ekleyin
 }
 
 const InterviewSchema: Schema = new Schema({
@@ -26,28 +21,18 @@ const InterviewSchema: Schema = new Schema({
       required: true,
     },
   ],
+  createdAt: {
+    type: Date,
+    default: Date.now, // Oluşturulma tarihi
+  },
+  expirationDate: {
+    type: Date,
+    required: true, // Admin tarafından girilecek
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin',
     required: true,
-  },
-  candidateResponses: [
-    {
-      candidateId: {
-        type: String,
-      },
-      responseVideoUrl: {
-        type: String,
-      },
-      submittedAt: {
-        type: Date,
-        default: Date.now,
-      },
-    },
-  ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
   },
 });
 

@@ -5,56 +5,48 @@ import auth from '../middlewares/auth';
 const router = express.Router();
 
 // Yeni mülakat oluşturma
-router.post('/create', auth, async (req: Request, res: Response, next: NextFunction) => {
-  const { title, questions } = req.body;
+router.post('/create', auth, async (req: Request, res: Response) => {
+  const { title, questions, expirationDate } = req.body;
 
   try {
-    // Girdi doğrulama
-    if (!title || !questions) {
-      res.status(400); // 400 Bad Request
-      throw new Error('Başlık ve sorular gereklidir');
-    }
-
     const interview = new Interview({
       title,
       questions,
-      createdBy: req.body.adminId,
+      expirationDate,
+      createdBy: req.body.adminId, // Mülakatı oluşturan admin ID'si
     });
 
     await interview.save();
     res.status(201).json({ message: 'Mülakat başarıyla oluşturuldu', interview });
   } catch (error) {
-    next(error); // Hata yönetimi middleware'ine iletiliyor
+    res.status(500).json({ message: 'Mülakat oluşturulamadı', error });
   }
 });
 
+
 // Mülakat güncelleme
 router.put('/update/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
-  const { title, questions } = req.body;
+  const { title, questions, expirationDate } = req.body;
 
   try {
     const interview = await Interview.findById(req.params.id);
 
     if (!interview) {
-      res.status(404); // 404 Not Found
-      throw new Error('Mülakat bulunamadı');
-    }
-
-    // Yalnızca mülakatı oluşturan admin güncelleyebilir
-    if (interview.createdBy.toString() !== req.body.adminId) {
-      res.status(403); // 403 Forbidden
-      throw new Error('Bu mülakatı güncelleyemezsiniz');
+      res.status(404);
+      return next(new Error('Mülakat bulunamadı'));
     }
 
     interview.title = title || interview.title;
     interview.questions = questions || interview.questions;
+    interview.expirationDate = expirationDate || interview.expirationDate;
 
     await interview.save();
     res.json({ message: 'Mülakat güncellendi', interview });
   } catch (error) {
-    next(error);
+    next(error); // Hata varsa, next fonksiyonu aracılığıyla hata yönetim middleware'ine iletin
   }
 });
+
 
 // Mülakat silme
 router.delete('/delete/:id', auth, async (req: Request, res: Response, next: NextFunction) => {
@@ -79,23 +71,13 @@ router.delete('/delete/:id', auth, async (req: Request, res: Response, next: Nex
   }
 });
 // Tüm mülakatları listeleme
-// Tüm mülakatları listeleme
-router.get('/list', auth, async (req: Request, res: Response) => {
+router.get('/list', auth, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Admin tarafından oluşturulan tüm mülakatları bul
     const interviews = await Interview.find({ createdBy: req.body.adminId });
-
-    // Hiç mülakat bulunamadıysa bir mesaj döndür
-    if (!interviews || interviews.length === 0) {
-      return res.status(404).json({ message: 'Hiç mülakat bulunamadı.' });
-    }
-
-    // Mülakatları JSON formatında döndür
     res.json(interviews);
   } catch (error) {
-    res.status(500).json({ message: 'Mülakatlar getirilemedi', error });
+    next(error); // Hata oluşursa, hata yönetim middleware'ine iletin
   }
 });
-
 
 export default router;

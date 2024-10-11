@@ -3,6 +3,7 @@ import connectDB from './config/db';
 import adminRoutes from './routes/adminRoutes';
 import interviewRoutes from './routes/interviewRoutes';
 import questionRoutes from './routes/questionRoutes'; // Soru rotasını doğru şekilde ekleyin
+import applicationRoutes from './routes/applicationRoutes';
 import errorHandler from './middlewares/errorHandlers'; // Hata yönetimi middleware'i
 
 const app: Application = express();
@@ -26,5 +27,8 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log(`Sunucu ${PORT} numaralı portta çalışıyor.`);
 });
+app.use('/api/application', applicationRoutes);
+
 
 //    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MDhkOGIzZjU3NmYzOTcwMTk2NDAzMyIsImlhdCI6MTcyODYzOTAxOSwiZXhwIjoxNzI4NjQyNjE5fQ.zgO1zm74oM4L2wNQU-pcBi7ndDHBwyzbdPk6crlHpsQ",
+//    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3MDhkOGIzZjU3NmYzOTcwMTk2NDAzMyIsImlhdCI6MTcyODY0MDg5OCwiZXhwIjoxNzI4NjQ0NDk4fQ.Vsl38bQelqT-hmZsKH0KvlAbe6F-SYfcnilFHJ52Uqw",
