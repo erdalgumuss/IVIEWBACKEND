@@ -1,3 +1,33 @@
+.
+├── config
+│   ├── db.ts
+│   └── playground-4.mongodb.js
+├── controllers
+│   ├── adminController.ts
+│   ├── applicationController.ts
+│   ├── interviewController.ts
+│   ├── questionController.ts
+│   └── videoController.ts
+├── middlewares
+│   ├── auth.ts
+│   ├── errorHandlers.ts
+│   └── upload.ts
+├── models
+│   ├── Admin.ts
+│   ├── Application.ts
+│   ├── Interview.ts
+│   └── Question.ts
+├── routes
+│   ├── adminRoutes.ts
+│   ├── applicationRoutes.ts
+│   ├── interviewRoutes.ts
+│   ├── questionRoutes.ts
+│   └── videoRoutes.ts
+├── server.ts
+└── uploads
+
+
+
 1. Admin işlevleri:
 -Giriş yapıyor.
 -Mülakat oluşturuyor
