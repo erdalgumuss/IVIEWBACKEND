@@ -6,6 +6,9 @@ import questionRoutes from './routes/questionRoutes'; // Soru rotasını doğru 
 import applicationRoutes from './routes/applicationRoutes';
 import errorHandler from './middlewares/errorHandlers'; // Hata yönetimi middleware'i
 import videoRoutes from './routes/videoRoutes';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 
 const app: Application = express();
