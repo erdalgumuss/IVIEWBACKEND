@@ -12,25 +12,19 @@ export const loginAdmin = async (req: Request, res: Response): Promise<void> => 
     console.log('Gelen şifre:', password); // Debug için eklendi
 
     // Admin'i bul
-    const admin = await Admin.findOne({ username });
-    if (!admin) {
+    const adminName = process.env.ADMIN_USERNAME
+    const adminPsw = process.env.ADMIN_PASSWORD
+    if (adminName != username || password != adminPsw) {
       console.log('Admin bulunamadı.'); // Debug için eklendi
       res.status(404).json({ message: 'Geçersiz kullanıcı adı' });
       return;
     }
 
-    console.log('Veritabanından bulunan admin:', admin); // Debug için eklendi
 
-    // Şifreyi kontrol et
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) {
-      console.log('Şifre eşleşmedi.'); // Debug için eklendi
-      res.status(401).json({ message: 'Geçersiz şifre' });
-      return;
-    }
+    
 
     // JWT token oluştur
-    const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET as string, {
+    const token = jwt.sign({ name: adminName }, process.env.JWT_SECRET as string, {
       expiresIn: '1h', // Token geçerlilik süresi
     });
 
