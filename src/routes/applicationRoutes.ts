@@ -5,6 +5,7 @@ import {
   listApplications,
   approveApplication,
   rejectApplication,
+  applicationsByInterview,
 } from '../controllers/applicationController';
 
 const router = express.Router();
@@ -23,5 +24,9 @@ router.put('/approve/:id', approveApplication);
 
 // Başvuru reddetme
 router.put('/reject/:id', rejectApplication);
+
+// Mülakata bağlı başvuruları listeleme
+router.get('/interview/:interviewId/applications', applicationsByInterview);
+
 
 export default router;

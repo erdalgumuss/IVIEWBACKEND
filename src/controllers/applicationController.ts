@@ -84,3 +84,21 @@ export const rejectApplication = async (req: Request, res: Response, next: NextF
     next(error);
   }
 };
+// Bir mülakata bağlı başvuruları listeleme
+export const applicationsByInterview = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const { interviewId } = req.params;
+
+  try {
+    // Mülakata bağlı başvuruları bul
+    const applications = await Application.find({ interviewId }).populate('interviewId', 'title');
+
+    if (!applications || applications.length === 0) {
+      res.status(404).json({ message: 'Bu mülakata bağlı başvuru bulunamadı' });
+      return;
+    }
+
+    res.json(applications);
+  } catch (error) {
+    res.status(500).json({ message: 'Başvurular getirilemedi', error });
+  }
+};
