@@ -34,3 +34,12 @@ export const loginAdmin = async (req: Request, res: Response): Promise<void> => 
     res.status(500).json({ message: 'Sunucu hatası' });
   }
 };
+// Admin çıkış işlemi
+export const logoutAdmin = async (req: Request, res: Response): Promise<void> => {
+  try {
+    res.json({ message: 'Başarılı çıkış' }); // Sadece mesaj döndürür
+  } catch (error) {
+    console.error('Sunucu hatası:', error);
+    res.status(500).json({ message: 'Sunucu hatası' });
+  }
+};

@@ -91,3 +91,24 @@ export const startInterview = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+// Mülakatı yayınla/yayından kaldır
+export const publishInterview = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const { published } = req.body; // İstek gövdesinde 'published' alanını bekliyoruz
+
+  try {
+    const interview = await Interview.findById(req.params.id);
+
+    if (!interview) {
+      res.status(404);
+      return next(new Error('Mülakat bulunamadı'));
+    }
+
+    // Yayın durumunu güncelle
+    interview.published = published;
+
+    await interview.save();
+    res.json({ message: `Mülakat ${published ? 'yayınlandı' : 'yayından kaldırıldı'}`, interview });
+  } catch (error) {
+    next(error);
+  }
+};

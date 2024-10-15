@@ -6,7 +6,8 @@ import {
   updateInterview,
   deleteInterview,
   listInterviews,
-  startInterview
+  startInterview,
+  publishInterview
 } from '../controllers/interviewController';
 
 const router = express.Router();
@@ -30,8 +31,8 @@ const upload = multer({ storage });
 router.post('/create', auth, createInterview);
 router.put('/update/:id', auth, updateInterview);
 router.delete('/delete/:id', auth, deleteInterview);
+router.put('/publish/:id', publishInterview); // Yeni route, yayına alma veya yayından kaldırma
 router.get('/list', auth, listInterviews);
 router.get('/start/:interviewId', startInterview);
 
 export default router;
-//

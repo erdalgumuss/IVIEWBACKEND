@@ -7,6 +7,7 @@ export interface IInterview extends Document {
   createdAt: Date;
   expirationDate: Date; // Mülakatın pasif olma tarihi
   createdBy: mongoose.Schema.Types.ObjectId; // Bu alanı ekleyin
+  published: boolean; // Yayında olup olmadığını gösterir
 }
 
 const InterviewSchema: Schema = new Schema({
@@ -33,6 +34,10 @@ const InterviewSchema: Schema = new Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin',
     required: false,
+  },
+  published: {
+    type: Boolean,
+    default: false, // Varsayılan olarak mülakat yayınlanmamış olacak
   },
 });
 
