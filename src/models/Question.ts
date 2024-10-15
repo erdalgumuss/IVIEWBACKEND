@@ -4,6 +4,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface IQuestion extends Document {
   questionText: string;
   timeLimit: number; // Soru için ayrılan süre (saniye olarak)
+  topic: string; // Sorunun konusu
 }
 
 const QuestionSchema: Schema = new Schema({
@@ -15,6 +16,10 @@ const QuestionSchema: Schema = new Schema({
     type: Number,
     required: false,
     default: 60, // Varsayılan süre 60 saniye
+  },
+  topic: {
+    type: String,
+    required: true, // Konu alanı zorunlu hale getirilmiştir
   },
 });
 

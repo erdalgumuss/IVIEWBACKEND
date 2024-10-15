@@ -3,17 +3,18 @@ import Question from '../models/Question';
 
 // Yeni soru ekleme
 export const addQuestion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const { questionText, timeLimit } = req.body;
+  const { questionText, timeLimit, topic } = req.body;
 
   try {
-    if (!questionText || !timeLimit) {
+    if (!questionText || !topic) {
       res.status(400);
-      throw new Error('Soru metni ve süre gereklidir');
+      throw new Error('Soru metni ve konu gereklidir');
     }
 
     const question = new Question({
       questionText,
-      timeLimit,
+      timeLimit: timeLimit || 60, // Eğer süre belirtilmemişse varsayılan olarak 60 saniye
+      topic,
     });
 
     await question.save();
@@ -22,6 +23,7 @@ export const addQuestion = async (req: Request, res: Response, next: NextFunctio
     next(error);
   }
 };
+
 
 // Soruları listeleme
 export const listQuestions = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -43,6 +45,14 @@ export const addMultipleQuestions = async (req: Request, res: Response, next: Ne
       throw new Error('Geçerli bir soru listesi gönderin');
     }
 
+    // Her soruda topic alanının olup olmadığını kontrol et
+    for (const question of questions) {
+      if (!question.topic) {
+        res.status(400);
+        throw new Error('Tüm sorularda "topic" alanı zorunludur');
+      }
+    }
+
     const createdQuestions = await Question.insertMany(questions);
     res.status(201).json({
       message: 'Sorular başarıyla eklendi',
@@ -53,9 +63,10 @@ export const addMultipleQuestions = async (req: Request, res: Response, next: Ne
   }
 };
 
+
 // Soru güncelleme
 export const updateQuestion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const { questionText, timeLimit } = req.body;
+  const { questionText, timeLimit, topic } = req.body;
 
   try {
     const question = await Question.findById(req.params.id);
@@ -65,8 +76,10 @@ export const updateQuestion = async (req: Request, res: Response, next: NextFunc
       throw new Error('Soru bulunamadı');
     }
 
+    // Soruyu güncelle
     question.questionText = questionText || question.questionText;
     question.timeLimit = timeLimit || question.timeLimit;
+    question.topic = topic || question.topic;
 
     await question.save();
     res.json({ message: 'Soru güncellendi', question });
@@ -74,6 +87,7 @@ export const updateQuestion = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+
 
 // Soru silme
 export const deleteQuestion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -91,3 +105,4 @@ export const deleteQuestion = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+
