@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import Interview from '../models/Interview';
+import { v4 as uuidv4 } from 'uuid'; // UUID kullanarak benzersiz bir kimlik oluşturacağız
+import { isNullOrUndefined } from 'util';
+import { devNull } from 'os';
 
 // Yeni mülakat oluşturma
 export const createInterview = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -91,24 +94,50 @@ export const startInterview = async (req: Request, res: Response, next: NextFunc
     next(error);
   }
 };
+
 // Mülakatı yayınla/yayından kaldır
 export const publishInterview = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  const { published } = req.body; // İstek gövdesinde 'published' alanını bekliyoruz
+  const { published } = req.body;
 
   try {
     const interview = await Interview.findById(req.params.id);
 
     if (!interview) {
-      res.status(404);
-      return next(new Error('Mülakat bulunamadı'));
+      res.status(404).json({ message: 'Mülakat bulunamadı' });
+      return;
     }
 
     // Yayın durumunu güncelle
     interview.published = published;
 
+    // Mülakat yayınlandığında yeni bir başvuru linki oluştur
+    if (published) {
+      // Eğer daha önce yayına alınmamışsa ya da yayından kaldırılıp tekrar yayınlanıyorsa yeni bir link oluştur
+      const uniqueId = uuidv4(); // Benzersiz bir kimlik oluştur
+      const baseUrl = process.env.BASE_URL || 'http://localhost:5173/application'; // Uygulamanın ana URL'si (örn. frontend URL)
+      interview.link = `${baseUrl}/apply/${uniqueId}`; // Yeni link oluştur
+    } else {
+      // Yayından kaldırıldığında linki tamamen temizle
+      interview.link = null;
+    }
+
     await interview.save();
-    res.json({ message: `Mülakat ${published ? 'yayınlandı' : 'yayından kaldırıldı'}`, interview });
+    res.json({
+      message: `Mülakat ${published ? 'yayınlandı' : 'yayından kaldırıldı'}`,
+      interview,
+    });
   } catch (error) {
     next(error);
   }
+};
+
+
+// Yalnızca yayınlanmış mülakatları listeleme
+export const listPublishedInterviews = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+        const interviews = await Interview.find({ published: true });
+        res.json(interviews);
+    } catch (error) {
+        res.status(500).json({ message: 'Yayınlanmış mülakatlar getirilemedi', error });
+    }
 };

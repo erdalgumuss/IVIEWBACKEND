@@ -12,6 +12,24 @@ export const listActiveInterviews = async (req: Request, res: Response): Promise
     res.status(500).json({ message: 'Mülakatlar getirilemedi', error });
   }
 };
+// Benzersiz link ile mülakat bilgisi getirme
+export const getInterviewByLink = async (req: Request, res: Response): Promise<void> => {
+  const { uniqueId } = req.params; // URL'den uniqueId'yi alıyoruz
+
+  try {
+    const interview = await Interview.findOne({ link: `http://localhost:5000/api/application/apply/${uniqueId}` });
+
+    if (!interview) {
+      res.status(404).json({ message: 'Mülakat bulunamadı' });
+      return;
+    }
+
+    // Başvuru sayfasına gerekli mülakat bilgilerini gönder
+    res.status(200).json(interview);
+  } catch (error) {
+    res.status(500).json({ message: 'Mülakat getirilemedi', error });
+  }
+};
 
 // Başvuru yapma
 export const applyForInterview = async (req: Request, res: Response): Promise<void> => {

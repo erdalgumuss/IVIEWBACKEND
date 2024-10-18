@@ -6,8 +6,9 @@ export interface IInterview extends Document {
   questions: mongoose.Schema.Types.ObjectId[]; // Soruların ID'leri
   createdAt: Date;
   expirationDate: Date; // Mülakatın pasif olma tarihi
-  createdBy: mongoose.Schema.Types.ObjectId; // Bu alanı ekleyin
+  createdBy: mongoose.Schema.Types.ObjectId; // Admin tarafından oluşturulma
   published: boolean; // Yayında olup olmadığını gösterir
+  link: string | null; // Mülakat için oluşturulan başvuru linki
 }
 
 const InterviewSchema: Schema = new Schema({
@@ -38,6 +39,10 @@ const InterviewSchema: Schema = new Schema({
   published: {
     type: Boolean,
     default: false, // Varsayılan olarak mülakat yayınlanmamış olacak
+  },
+  link: {
+    type: String,
+    required: false, // Başvuru linki, sadece mülakat yayınlandığında oluşturulacak
   },
 });
 
