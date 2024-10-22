@@ -96,6 +96,7 @@ export const startInterview = async (req: Request, res: Response, next: NextFunc
 };
 
 // Mülakatı yayınla/yayından kaldır
+// Mülakatı yayınla/yayından kaldır
 export const publishInterview = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { published } = req.body;
 
@@ -110,14 +111,13 @@ export const publishInterview = async (req: Request, res: Response, next: NextFu
     // Yayın durumunu güncelle
     interview.published = published;
 
-    // Mülakat yayınlandığında yeni bir başvuru linki oluştur
+    // Mülakat yayınlandığında yeni bir başvuru uniqueId oluştur
     if (published) {
-      // Eğer daha önce yayına alınmamışsa ya da yayından kaldırılıp tekrar yayınlanıyorsa yeni bir link oluştur
       const uniqueId = uuidv4(); // Benzersiz bir kimlik oluştur
-      const baseUrl = process.env.BASE_URL || 'http://localhost:5173/application'; // Uygulamanın ana URL'si (örn. frontend URL)
-      interview.link = `${baseUrl}/apply/${uniqueId}`; // Yeni link oluştur
+      const baseUrl = process.env.FRONTEND_BASE_URL || 'http://localhost:5173'; // Ön uç için temel URL
+      interview.link = `${baseUrl}/apply/${uniqueId}`; // Tam başvuru linkini oluştur
     } else {
-      // Yayından kaldırıldığında linki tamamen temizle
+      // Yayından kaldırıldığında linki temizle
       interview.link = null;
     }
 
@@ -130,6 +130,7 @@ export const publishInterview = async (req: Request, res: Response, next: NextFu
     next(error);
   }
 };
+
 
 
 // Yalnızca yayınlanmış mülakatları listeleme
