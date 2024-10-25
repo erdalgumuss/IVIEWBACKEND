@@ -18,9 +18,6 @@ router.get('/interviews', listActiveInterviews);
 router.get('/apply/:uniqueId', getInterviewByLink);
 
 
-// Başvuru yapma
-//router.get('/apply/:uniqueId', applyForInterview);
-
 // Tüm başvuruları listeleme
 router.get('/applications', listApplications);
 

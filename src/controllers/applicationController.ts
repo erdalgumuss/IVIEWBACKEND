@@ -17,31 +17,49 @@ export const getInterviewByLink = async (req: Request, res: Response): Promise<v
   const { uniqueId } = req.params; // URL'den uniqueId'yi alıyoruz
 
   try {
+
     const interview = await Interview.findOne({ link: `http://localhost:5174/apply/${uniqueId}` });
+
 
     if (!interview) {
       res.status(404).json({ message: 'Mülakat bulunamadı' });
       return;
     }
 
-    // Başvuru sayfasına gerekli mülakat bilgilerini gönder
-    res.status(200).json(interview);
+    res.status(200).json(interview); // Mülakatı geri döndürüyoruz
   } catch (error) {
     res.status(500).json({ message: 'Mülakat getirilemedi', error });
   }
 };
+
+
 
 // Başvuru yapma
 export const applyForInterview = async (req: Request, res: Response): Promise<void> => {
   const { name, surname, email, phoneNumber, interviewId } = req.body;
 
   try {
+    // Gerekli alanların boş olup olmadığını kontrol et
+    if (!name || !surname || !email || !phoneNumber || !interviewId) {
+      res.status(400).json({ message: 'Tüm alanlar zorunludur' });
+      return;
+    }
+ 
+    // Seçilen mülakatı bul
     const interview = await Interview.findById(interviewId);
     if (!interview) {
       res.status(404).json({ message: 'Seçilen mülakat bulunamadı' });
       return;
     }
 
+    // Aynı kişi aynı mülakata daha önce başvurdu mu kontrol et
+    const existingApplication = await Application.findOne({ email, interviewId });
+    if (existingApplication) {
+      res.status(400).json({ message: 'Bu mülakata zaten başvurdunuz' });
+      return;
+    }
+
+    // Yeni başvuru oluştur
     const application = new Application({
       name,
       surname,
@@ -56,6 +74,7 @@ export const applyForInterview = async (req: Request, res: Response): Promise<vo
     res.status(500).json({ message: 'Başvuru kaydedilemedi', error });
   }
 };
+
 
 // Tüm başvuruları listeleme (Admin için)
 export const listApplications = async (req: Request, res: Response): Promise<void> => {
