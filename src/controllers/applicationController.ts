@@ -17,7 +17,7 @@ export const getInterviewByLink = async (req: Request, res: Response): Promise<v
   const { uniqueId } = req.params; // URL'den uniqueId'yi alıyoruz
 
   try {
-    const interview = await Interview.findOne({ link: `http://localhost:5000/api/application/apply/${uniqueId}` });
+    const interview = await Interview.findOne({ link: `http://localhost:5174/apply/${uniqueId}` });
 
     if (!interview) {
       res.status(404).json({ message: 'Mülakat bulunamadı' });

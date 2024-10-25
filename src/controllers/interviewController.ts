@@ -114,7 +114,7 @@ export const publishInterview = async (req: Request, res: Response, next: NextFu
     if (published) {
       // Eğer daha önce yayına alınmamışsa ya da yayından kaldırılıp tekrar yayınlanıyorsa yeni bir link oluştur
       const uniqueId = uuidv4(); // Benzersiz bir kimlik oluştur
-      const baseUrl = process.env.BASE_URL || 'http://localhost:5173/application'; // Uygulamanın ana URL'si (örn. frontend URL)
+      const baseUrl = process.env.BASE_URL || 'http://localhost:5174'; // Uygulamanın ana URL'si (örn. frontend URL)
       interview.link = `${baseUrl}/apply/${uniqueId}`; // Yeni link oluştur
     } else {
       // Yayından kaldırıldığında linki tamamen temizle
