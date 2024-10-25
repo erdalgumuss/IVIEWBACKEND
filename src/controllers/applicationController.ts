@@ -18,7 +18,7 @@ export const getInterviewByLink = async (req: Request, res: Response): Promise<v
 
   try {
     // Veritabanında tam URL saklandığı için URL'nin sonundaki uniqueId'ye göre arama yapıyoruz
-    const baseUrl = process.env.FRONTEND_BASE_URL || 'http://localhost:5173'; // Temel frontend URL'si
+    const baseUrl = process.env.FRONTEND_BASE_URL || 'http://localhost:5174'; // Temel frontend URL'si
     const fullLink = `${baseUrl}/apply/${uniqueId}`; // Tam URL'yi oluşturuyoruz
 
     // Tam URL'yi veritabanında arıyoruz
@@ -47,7 +47,7 @@ export const applyForInterview = async (req: Request, res: Response): Promise<vo
       res.status(400).json({ message: 'Tüm alanlar zorunludur' });
       return;
     }
-
+ 
     // Seçilen mülakatı bul
     const interview = await Interview.findById(interviewId);
     if (!interview) {

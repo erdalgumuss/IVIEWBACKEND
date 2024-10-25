@@ -114,7 +114,7 @@ export const publishInterview = async (req: Request, res: Response, next: NextFu
     // Mülakat yayınlandığında yeni bir başvuru uniqueId oluştur
     if (published) {
       const uniqueId = uuidv4(); // Benzersiz bir kimlik oluştur
-      const baseUrl = process.env.FRONTEND_BASE_URL || 'http://localhost:5173'; // Ön uç için temel URL
+      const baseUrl = process.env.FRONTEND_BASE_URL || 'http://localhost:5174'; // Ön uç için temel URL
       interview.link = `${baseUrl}/apply/${uniqueId}`; // Tam başvuru linkini oluştur
     } else {
       // Yayından kaldırıldığında linki temizle
