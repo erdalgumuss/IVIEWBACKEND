@@ -17,12 +17,9 @@ export const getInterviewByLink = async (req: Request, res: Response): Promise<v
   const { uniqueId } = req.params; // URL'den uniqueId'yi alıyoruz
 
   try {
-    // Veritabanında tam URL saklandığı için URL'nin sonundaki uniqueId'ye göre arama yapıyoruz
-    const baseUrl = process.env.FRONTEND_BASE_URL || 'http://localhost:5174'; // Temel frontend URL'si
-    const fullLink = `${baseUrl}/apply/${uniqueId}`; // Tam URL'yi oluşturuyoruz
 
-    // Tam URL'yi veritabanında arıyoruz
-    const interview = await Interview.findOne({ link: fullLink });
+    const interview = await Interview.findOne({ link: `http://localhost:5174/apply/${uniqueId}` });
+
 
     if (!interview) {
       res.status(404).json({ message: 'Mülakat bulunamadı' });
