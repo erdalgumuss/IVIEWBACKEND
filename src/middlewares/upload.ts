@@ -1,5 +1,6 @@
-import multer from 'multer';
+import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
+import { Request } from 'express';
 
 // Multer ayarları
 const storage = multer.diskStorage({
@@ -13,22 +14,24 @@ const storage = multer.diskStorage({
 });
 
 // Sadece video dosyalarını kabul etme
-const fileFilter = (req: any, file: any, cb: any) => {
-  const fileTypes = /mp4|mov|avi|mkv/;
+const fileFilter = (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
+  // Kabul edilen video türleri
+  const fileTypes = /mp4|mov|avi|mkv|webm/;
   const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = fileTypes.test(file.mimetype);
 
   if (extname && mimetype) {
-    return cb(null, true);
+    cb(null, true); // Dosya kabul ediliyor
   } else {
-    cb(new Error('Sadece video dosyaları yüklenebilir.'));
+    cb(new Error('Sadece video dosyaları yüklenebilir.')); // Hata mesajı
   }
 };
 
+// Multer yapılandırması
 const upload = multer({
   storage: storage,
   fileFilter: fileFilter,
-  limits: { fileSize: 100000000 }, // Maksimum dosya boyutu: 100 MB
+  limits: { fileSize: 100 * 1024 * 1024 }, // Maksimum dosya boyutu: 100 MB (bytes)
 });
 
 export default upload;
