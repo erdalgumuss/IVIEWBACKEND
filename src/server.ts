@@ -8,6 +8,7 @@ import applicationRoutes from './routes/applicationRoutes';
 import videoRoutes from './routes/videoRoutes';
 import errorHandler from './middlewares/errorHandlers'; // Hata yönetimi middleware'i
 import dotenv from 'dotenv';
+import categoryRoutes from './routes/categoryRoutes';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use('/api/interview', interviewRoutes);
 app.use('/api/question', questionRoutes); 
 app.use('/api/application', applicationRoutes);
 app.use('/api/video', videoRoutes);
+app.use('/api/category', categoryRoutes);
 
 // Genel hata yönetimi middleware'i
 app.use(errorHandler);
