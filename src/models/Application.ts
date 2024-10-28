@@ -10,6 +10,7 @@ export interface IApplication extends Document {
   videoUrl?: string;
   appliedAt: Date;
   status: string; // Güncellenmiş durum alanı
+  consent: boolean; // Kullanıcı sözleşmesi onayı
 }
 
 const ApplicationSchema: Schema = new Schema({
@@ -43,8 +44,12 @@ const ApplicationSchema: Schema = new Schema({
   },
   status: {
     type: String,
-    enum: ['Beklemede', 'Onaylandı', 'Reddedildi'], // Durum seçenekleri
-    default: 'Beklemede', // Varsayılan olarak "Beklemede"
+    enum: ['Beklemede', 'Onaylandı', 'Reddedildi'],
+    default: 'Beklemede',
+  },
+  consent: {
+    type: Boolean,
+    required: true, // Kullanıcının onayı gerekli
   },
 });
 

@@ -34,9 +34,17 @@ export const getInterviewByLink = async (req: Request, res: Response): Promise<v
 
 // Başvuru oluşturma
 export const applyForInterview = async (req: Request, res: Response): Promise<void> => {
-  const { name, surname, email, phoneNumber, interviewId } = req.body;
+  console.log(req.body); // Gelen veriyi kontrol edin
+
+  const { name, surname, email, phoneNumber, interviewId, consent } = req.body;
 
   try {
+    // Kullanıcının onay verip vermediğini kontrol et
+    if (!consent) {
+      res.status(400).json({ message: 'Kullanıcı sözleşmesi onayı gerekli' });
+      return;
+    }
+
     // Mülakatın var olup olmadığını kontrol edin
     const interview = await Interview.findById(interviewId);
     if (!interview) {
@@ -52,6 +60,7 @@ export const applyForInterview = async (req: Request, res: Response): Promise<vo
       phoneNumber,
       interviewId,
       videoUrl: '', // Video URL'si başvuru sırasında boş bırakılıyor
+      consent, // Kullanıcı sözleşmesi onayı
     });
 
     await application.save();
@@ -60,6 +69,7 @@ export const applyForInterview = async (req: Request, res: Response): Promise<vo
     res.status(500).json({ message: 'Başvuru oluşturulamadı', error });
   }
 };
+
 // // Video Key'i başvuruya ekleme
 // export const addVideoKeyToApplication = async (req: Request, res: Response): Promise<void> => {
 //   const { applicationId } = req.params; // Başvuru ID'sini params ile alıyoruz
