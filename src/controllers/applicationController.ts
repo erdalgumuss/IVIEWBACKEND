@@ -32,48 +32,56 @@ export const getInterviewByLink = async (req: Request, res: Response): Promise<v
   }
 };
 
-
-
-// Başvuru yapma
+// Başvuru oluşturma
 export const applyForInterview = async (req: Request, res: Response): Promise<void> => {
   const { name, surname, email, phoneNumber, interviewId } = req.body;
 
   try {
-    // Gerekli alanların boş olup olmadığını kontrol et
-    if (!name || !surname || !email || !phoneNumber || !interviewId) {
-      res.status(400).json({ message: 'Tüm alanlar zorunludur' });
-      return;
-    }
- 
-    // Seçilen mülakatı bul
+    // Mülakatın var olup olmadığını kontrol edin
     const interview = await Interview.findById(interviewId);
     if (!interview) {
-      res.status(404).json({ message: 'Seçilen mülakat bulunamadı' });
+      res.status(404).json({ message: 'Mülakat bulunamadı' });
       return;
     }
 
-    // Aynı kişi aynı mülakata daha önce başvurdu mu kontrol et
-    const existingApplication = await Application.findOne({ email, interviewId });
-    if (existingApplication) {
-      res.status(400).json({ message: 'Bu mülakata zaten başvurdunuz' });
-      return;
-    }
-
-    // Yeni başvuru oluştur
+    // Yeni başvuru oluşturma (video URL'si şimdilik boş bırakılıyor)
     const application = new Application({
       name,
       surname,
       email,
       phoneNumber,
       interviewId,
+      videoUrl: '', // Video URL'si başvuru sırasında boş bırakılıyor
     });
 
     await application.save();
-    res.status(201).json({ message: 'Başvuru başarıyla kaydedildi', application });
+    res.status(201).json({ message: 'Başvuru başarıyla oluşturuldu', application });
   } catch (error) {
-    res.status(500).json({ message: 'Başvuru kaydedilemedi', error });
+    res.status(500).json({ message: 'Başvuru oluşturulamadı', error });
   }
 };
+// // Video Key'i başvuruya ekleme
+// export const addVideoKeyToApplication = async (req: Request, res: Response): Promise<void> => {
+//   const { applicationId } = req.params; // Başvuru ID'sini params ile alıyoruz
+//   const { videoKey } = req.body; // Yüklenen video key'ini alıyoruz
+
+//   try {
+//     const application = await Application.findById(applicationId);
+
+//     if (!application) {
+//       res.status(404).json({ message: 'Başvuru bulunamadı' });
+//       return;
+//     }
+
+//     // Video Key'ini güncelliyoruz
+//     application.videoUrl = videoKey; // Video URL yerine video key kullanılıyor
+//     await application.save();
+
+//     res.status(200).json({ message: 'Video key başarıyla eklendi', application });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Video key eklenirken hata oluştu', error });
+//   }
+// };
 
 
 // Tüm başvuruları listeleme (Admin için)
