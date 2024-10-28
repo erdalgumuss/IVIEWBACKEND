@@ -56,10 +56,10 @@ export const deleteInterview = async (req: Request, res: Response, next: NextFun
       return next(new Error('Mülakat bulunamadı'));
     }
 
-    if (interview.createdBy.toString() !== req.body.adminId) {
-      res.status(403);
-      return next(new Error('Bu mülakatı silemezsiniz'));
-    }
+    // if (interview.createdBy.toString() !== req.body.adminId) {
+    //   res.status(403);
+    //   return next(new Error('Bu mülakatı silemezsiniz'));
+    // }
 
     await interview.deleteOne();
     res.json({ message: 'Mülakat silindi' });

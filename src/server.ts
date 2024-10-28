@@ -9,6 +9,7 @@ import videoRoutes from './routes/videoRoutes';
 import categoryRoutes from './routes/categoryRoutes'; // Yeni category routes eklendi
 import errorHandler from './middlewares/errorHandlers'; // Hata yönetimi middleware'i
 import dotenv from 'dotenv';
+import categoryRoutes from './routes/categoryRoutes';
 
 dotenv.config(); // Dotenv'i hemen en başta yükleyelim
 
