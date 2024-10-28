@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import { v4 as uuidv4 } from 'uuid'; // Benzersiz bir ID oluşturmak için
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { v4 as uuidv4 } from 'uuid';
+import Application from '../models/Application'; // Başvuru modelini içe aktarıyoruz
 
 // AWS S3 yapılandırması
 const s3 = new S3Client({
@@ -13,6 +15,8 @@ const s3 = new S3Client({
 
 // Video yükleme fonksiyonu
 export const uploadVideo = async (req: Request, res: Response): Promise<void> => {
+  const { applicationId } = req.body; // Başvuru ID'sini alıyoruz
+
   try {
     // S3 bucket kontrolü
     if (!process.env.AWS_S3_BUCKET) {
@@ -27,33 +31,64 @@ export const uploadVideo = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    // Benzersiz bir dosya adı için UUID kullanıyoruz
+    // Benzersiz dosya adı için UUID kullanıyoruz
     const uniqueFileName = `${uuidv4()}_${file.originalname.replace(/[^a-zA-Z0-9.]/g, '_')}`;
 
-    // S3 parametreleri (dosya bellekte tutuluyor, bu yüzden buffer kullanıyoruz)
+    // S3'e video yükleme parametreleri
     const s3Params = {
       Bucket: process.env.AWS_S3_BUCKET as string,
       Key: `videos/${uniqueFileName}`,
-      Body: file.buffer, // Burada `file.buffer` kullanıyoruz çünkü dosya bellekte tutuluyor
-      ContentType: file.mimetype, // Dosya tipini belirtiyoruz
+      Body: file.buffer,
+      ContentType: file.mimetype,
     };
 
-    // S3'e video yükleme işlemi
+    // S3'e yükleme işlemi
     const command = new PutObjectCommand(s3Params);
-    const result = await s3.send(command);  // AWS SDK v3'ün yeni yöntemi
+    const result = await s3.send(command);
 
-    if (!result || !result.ETag) {  // ETag, başarılı yüklemeyi doğrulamak için kullanılabilir
+    // Yükleme doğrulama
+    if (!result || !result.ETag) {
       throw new Error('S3 video yükleme başarısız oldu');
     }
 
-    // Yüklenen dosyanın S3 URL'si
-    const videoUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/videos/${uniqueFileName}`;
+    // Video key'i (dosya ismi) alıyoruz
+    const videoKey = uniqueFileName;
 
-    // Yükleme başarılıysa yanıt dön
-    res.status(201).json({ message: 'Video başarıyla yüklendi', videoUrl });
+    // Başvuruya video key'ini kaydediyoruz
+    const application = await Application.findById(applicationId);
+    if (application) {
+      application.videoUrl = videoKey;  // Video URL yerine video key kaydediyoruz
+      await application.save(); // Başvurunun video key'ini kaydet
+    } else {
+      res.status(404).json({ message: 'Başvuru bulunamadı' });
+      return;
+    }
+
+    // Başarılı yanıt
+    res.status(201).json({ message: 'Video başarıyla yüklendi', videoKey });
   } catch (error) {
-    
     console.error('Video yükleme hatası:', error);
     res.status(500).json({ message: 'Video yükleme hatası', error });
+  }
+};
+
+// Presigned URL oluşturma fonksiyonu
+export const getVideoPresignedUrl = async (req: Request, res: Response): Promise<void> => {
+  const { videoKey } = req.params; // Video dosyasının key'ini (path) alıyoruz
+
+  try {
+    // S3 presigned URL oluşturma işlemi
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET as string,
+      Key: `videos/${videoKey}`, // Video dosyasının tam key'i
+    });
+
+    // Presigned URL'i oluşturuyoruz (örneğin 1 saat geçerli, süreyi isterseniz artırabilirsiniz)
+    const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+
+    res.status(200).json({ presignedUrl });
+  } catch (error) {
+    console.error('Presigned URL oluşturulamadı:', error);
+    res.status(500).json({ message: 'Presigned URL oluşturulamadı', error });
   }
 };

@@ -1,6 +1,9 @@
 import express from 'express';
 import multer from 'multer';
-import { uploadVideo } from '../controllers/videoController';
+import {
+    uploadVideo,
+    getVideoPresignedUrl,
+ } from '../controllers/videoController';
 
 const router = express.Router();
 
@@ -10,5 +13,7 @@ const upload = multer({ storage });
 
 // Video yükleme rotası
 router.post('/upload', upload.single('video'), uploadVideo);
+// Videonun presigned URL'ini almak için rota
+router.get('/:videoKey/presigned-url', getVideoPresignedUrl);
 
 export default router;
