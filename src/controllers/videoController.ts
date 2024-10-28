@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid'; // Benzersiz bir ID oluşturmak için
 
 // AWS S3 yapılandırması
@@ -29,17 +28,14 @@ export const uploadVideo = async (req: Request, res: Response): Promise<void> =>
     }
 
     // Benzersiz bir dosya adı için UUID kullanıyoruz
-    const uniqueFileName = `${uuidv4()}_${file.originalname.replace(/[^a-zA-Z0-9.]/g, '_')}`; // Dosya adını temizleme
+    const uniqueFileName = `${uuidv4()}_${file.originalname.replace(/[^a-zA-Z0-9.]/g, '_')}`;
 
-    // Dosya akışını başlat
-    const fileStream = fs.createReadStream(file.path);
-
-    // S3 parametreleri
+    // S3 parametreleri (dosya bellekte tutuluyor, bu yüzden buffer kullanıyoruz)
     const s3Params = {
       Bucket: process.env.AWS_S3_BUCKET as string,
       Key: `videos/${uniqueFileName}`,
-      Body: fileStream,
-      ContentType: file.mimetype, // Gerekirse MIME tipini doğrulayabilirsiniz
+      Body: file.buffer, // Burada `file.buffer` kullanıyoruz çünkü dosya bellekte tutuluyor
+      ContentType: file.mimetype, // Dosya tipini belirtiyoruz
     };
 
     // S3'e video yükleme işlemi
@@ -53,16 +49,10 @@ export const uploadVideo = async (req: Request, res: Response): Promise<void> =>
     // Yüklenen dosyanın S3 URL'si
     const videoUrl = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/videos/${uniqueFileName}`;
 
-    // Geçici dosyayı sunucudan silme işlemi (Promise tabanlı)
-    try {
-      await fs.promises.unlink(file.path);
-    } catch (unlinkError) {
-      console.error('Geçici dosya silme hatası:', unlinkError);
-    }
-
     // Yükleme başarılıysa yanıt dön
     res.status(201).json({ message: 'Video başarıyla yüklendi', videoUrl });
   } catch (error) {
+    
     console.error('Video yükleme hatası:', error);
     res.status(500).json({ message: 'Video yükleme hatası', error });
   }
