@@ -32,7 +32,7 @@ export const getInterviewByLink = async (req: Request, res: Response): Promise<v
   }
 };
 
-// Başvuru oluşturma
+// Başvuru oluşturma fonksiyonu
 export const applyForInterview = async (req: Request, res: Response): Promise<void> => {
   console.log(req.body); // Gelen veriyi kontrol edin
 
@@ -64,11 +64,14 @@ export const applyForInterview = async (req: Request, res: Response): Promise<vo
     });
 
     await application.save();
-    res.status(201).json({ message: 'Başvuru başarıyla oluşturuldu', application });
+
+    // Başvurunun ID'sini frontend'e döndürüyoruz
+    res.status(201).json({ message: 'Başvuru başarıyla oluşturuldu', applicationId: application._id });
   } catch (error) {
     res.status(500).json({ message: 'Başvuru oluşturulamadı', error });
   }
 };
+
 
 // // Video Key'i başvuruya ekleme
 // export const addVideoKeyToApplication = async (req: Request, res: Response): Promise<void> => {

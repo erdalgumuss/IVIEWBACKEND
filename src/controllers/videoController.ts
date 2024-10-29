@@ -15,6 +15,8 @@ const s3 = new S3Client({
 
 // Video yükleme fonksiyonu
 export const uploadVideo = async (req: Request, res: Response): Promise<void> => {
+  console.log(req.body); // Gelen veriyi kontrol edin
+
   const { applicationId } = req.body; // Başvuru ID'sini alıyoruz
 
   try {
