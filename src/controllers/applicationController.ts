@@ -142,7 +142,36 @@ export const rejectApplication = async (req: Request, res: Response, next: NextF
     next(error);
   }
 };
-// Bir mülakata bağlı başvuruları listeleme
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+
+// AWS S3 yapılandırması
+const s3 = new S3Client({
+  region: process.env.AWS_REGION,
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!,
+  },
+});
+
+// Presigned URL oluşturma fonksiyonu
+const generatePresignedUrl = async (videoKey: string): Promise<string | null> => {
+  try {
+    const command = new GetObjectCommand({
+      Bucket: process.env.AWS_S3_BUCKET as string,
+      Key: `videos/${videoKey}`, // Video dosyasının tam key'i
+    });
+
+    // Presigned URL oluşturuyoruz (1 saat geçerli)
+    const presignedUrl = await getSignedUrl(s3, command, { expiresIn: 3600 });
+    return presignedUrl;
+  } catch (error) {
+    console.error('Presigned URL oluşturulamadı:', error);
+    return null; // Hata durumunda null döndürüyoruz
+  }
+};
+
+// Bir mülakata bağlı başvuruları listeleme ve presigned URL ekleme
 export const applicationsByInterview = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const { interviewId } = req.params;
 
@@ -155,7 +184,20 @@ export const applicationsByInterview = async (req: Request, res: Response, next:
       return;
     }
 
-    res.json(applications);
+    // Her başvuru için presigned URL'yi ekle
+    const applicationsWithPresignedUrls = await Promise.all(applications.map(async (application) => {
+      if (application.videoUrl) {
+        const presignedUrl = await generatePresignedUrl(application.videoUrl); // Video key'i ile presigned URL oluştur
+        return {
+          ...application.toObject(),
+          presignedUrl, // Presigned URL'yi ekle
+        };
+      } else {
+        return application;
+      }
+    }));
+
+    res.json(applicationsWithPresignedUrls);
   } catch (error) {
     res.status(500).json({ message: 'Başvurular getirilemedi', error });
   }
