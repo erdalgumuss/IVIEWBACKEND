@@ -11,6 +11,8 @@ export interface IApplication extends Document {
   appliedAt: Date;
   status: string; // Güncellenmiş durum alanı
   consent: boolean; // Kullanıcı sözleşmesi onayı
+  adminNote?: string; // Admin tarafından verilen not
+  aiScore?: number; // AI tarafından verilen puan (0-100 arasında)
 }
 
 const ApplicationSchema: Schema = new Schema({
@@ -50,6 +52,15 @@ const ApplicationSchema: Schema = new Schema({
   consent: {
     type: Boolean,
     required: true, // Kullanıcının onayı gerekli
+  },
+  adminNote: {
+    type: String, // Adminin başvuruya ekleyeceği not
+  },
+  aiScore: {
+    type: Number, // AI tarafından verilecek puan
+    min: 0,
+    max: 100,
+    default: null, // AI puanı başlangıçta boş bırakılabilir
   },
 });
 

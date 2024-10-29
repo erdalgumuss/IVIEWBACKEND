@@ -3,10 +3,12 @@ import {
   listActiveInterviews,
   applyForInterview,
   listApplications,
-  approveApplication,
-  rejectApplication,
+  //approveApplication,
+  //rejectApplication,
+  updateApplicationStatusWithAdminNote,
   applicationsByInterview,
   getInterviewByLink,
+  countApplicationsByInterview
  // addVideoKeyToApplication,
 } from '../controllers/applicationController';
 
@@ -25,10 +27,18 @@ router.post('/appadd', applyForInterview);
 router.get('/applications', listApplications);
 
 // Başvuru onaylama
-router.put('/approve/:id', approveApplication);
+//router.put('/approve/:id', approveApplication);
 
 // Başvuru reddetme
-router.put('/reject/:id', rejectApplication);
+//router.put('/reject/:id', rejectApplication);
+
+// Admin notunu ve durumu güncelleme rotası
+router.put('/:id/update-status', updateApplicationStatusWithAdminNote);
+
+
+// Başvuru sayısını alma rotası
+router.get('/interview/:interviewId/count', countApplicationsByInterview); // Yeni rota
+
 
 // Mülakata bağlı başvuruları listeleme
 router.get('/interview/:interviewId/applications', applicationsByInterview);
