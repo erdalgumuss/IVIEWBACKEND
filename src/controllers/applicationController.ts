@@ -229,7 +229,6 @@ export const applicationsByInterview = async (req: Request, res: Response, next:
 };
 // Bir mülakata bağlı başvuru sayısını döndüren fonksiyon
 export const countApplicationsByInterview = async (req: Request, res: Response): Promise<void> => {
-  console.log("girdi");
   const { interviewId } = req.params; // URL'den interviewId'yi alıyoruz
 
   try {
