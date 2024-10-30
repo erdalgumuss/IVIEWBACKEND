@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { v4 as uuidv4 } from 'uuid';
-import Application from '../models/Application'; // Başvuru modelini içe aktarıyoruz
+import Application from '../models/Application';
+//import { startAIAnalysis } from '../services/aiAnalysisService'; // AI analiz servisini import ediyoruz
 
 // AWS S3 yapılandırması
 const s3 = new S3Client({
@@ -15,8 +16,6 @@ const s3 = new S3Client({
 
 // Video yükleme fonksiyonu
 export const uploadVideo = async (req: Request, res: Response): Promise<void> => {
-  console.log(req.body); // Gelen veriyi kontrol edin
-
   const { applicationId } = req.body; // Başvuru ID'sini alıyoruz
 
   try {
@@ -66,8 +65,11 @@ export const uploadVideo = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
+    // AI analizini başlatıyoruz
+   // await startAIAnalysis(applicationId, videoKey);
+
     // Başarılı yanıt
-    res.status(201).json({ message: 'Video başarıyla yüklendi', videoKey });
+    res.status(201).json({ message: 'Video başarıyla yüklendi, AI analizi başlatıldı', videoKey });
   } catch (error) {
     console.error('Video yükleme hatası:', error);
     res.status(500).json({ message: 'Video yükleme hatası', error });

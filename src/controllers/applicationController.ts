@@ -106,42 +106,67 @@ export const listApplications = async (req: Request, res: Response): Promise<voi
     res.status(500).json({ message: 'Başvurular getirilemedi', error });
   }
 };
+// Admin notunu ve başvuru durumunu güncelleme fonksiyonu
+export const updateApplicationStatusWithAdminNote = async (req: Request, res: Response): Promise<void> => {
+  const { status, adminNote } = req.body; // Status ve admin notunu body'den alıyoruz
+
+  try {
+    // Başvuruyu ID ile bul
+    const application = await Application.findById(req.params.id);
+
+    if (!application) {
+      res.status(404).json({ message: 'Başvuru bulunamadı' });
+      return;
+    }
+
+    // Başvuru durumunu ve admin notunu güncelle
+    application.status = status;
+    application.adminNote = adminNote;
+
+    await application.save();
+
+    res.status(200).json({ message: 'Başvuru güncellendi', application });
+  } catch (error) {
+    console.error('Başvuru güncellenirken hata oluştu:', error);
+    res.status(500).json({ message: 'Başvuru güncellenemedi', error });
+  }
+};
 
 // Başvuru onaylama
-export const approveApplication = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const application = await Application.findById(req.params.id);
-    if (!application) {
-      res.status(404).json({ message: 'Başvuru bulunamadı' });
-      return;
-    }
+// export const approveApplication = async (req: Request, res: Response): Promise<void> => {
+//   try {
+//     const application = await Application.findById(req.params.id);
+//     if (!application) {
+//       res.status(404).json({ message: 'Başvuru bulunamadı' });
+//       return;
+//     }
 
-    application.status = 'Onaylandı';
-    await application.save();
+//     application.status = 'Onaylandı';
+//     await application.save();
 
-    res.json({ message: 'Başvuru onaylandı', application });
-  } catch (error) {
-    res.status(500).json({ message: 'Başvuru onaylanamadı', error });
-  }
-};
+//     res.json({ message: 'Başvuru onaylandı', application });
+//   } catch (error) {
+//     res.status(500).json({ message: 'Başvuru onaylanamadı', error });
+//   }
+// };
 
 // Başvuru reddetme
-export const rejectApplication = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try {
-    const application = await Application.findById(req.params.id);
-    if (!application) {
-      res.status(404).json({ message: 'Başvuru bulunamadı' });
-      return;
-    }
+// export const rejectApplication = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+//   try {
+//     const application = await Application.findById(req.params.id);
+//     if (!application) {
+//       res.status(404).json({ message: 'Başvuru bulunamadı' });
+//       return;
+//     }
 
-    application.status = 'Reddedildi';
-    await application.save();
+//     application.status = 'Reddedildi';
+//     await application.save();
 
-    res.json({ message: 'Başvuru reddedildi', application });
-  } catch (error) {
-    next(error);
-  }
-};
+//     res.json({ message: 'Başvuru reddedildi', application });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
@@ -200,5 +225,19 @@ export const applicationsByInterview = async (req: Request, res: Response, next:
     res.json(applicationsWithPresignedUrls);
   } catch (error) {
     res.status(500).json({ message: 'Başvurular getirilemedi', error });
+  }
+};
+// Bir mülakata bağlı başvuru sayısını döndüren fonksiyon
+export const countApplicationsByInterview = async (req: Request, res: Response): Promise<void> => {
+  const { interviewId } = req.params; // URL'den interviewId'yi alıyoruz
+
+  try {
+    // Belirtilen interviewId'ye sahip başvuruları sayıyoruz
+    const applicationCount = await Application.countDocuments({ interviewId });
+
+    // Sonucu döndürüyoruz
+    res.status(200).json({ interviewId, applicationCount });
+  } catch (error) {
+    res.status(500).json({ message: 'Başvuru sayısı getirilemedi', error });
   }
 };
