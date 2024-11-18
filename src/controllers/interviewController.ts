@@ -68,7 +68,7 @@ export const deleteInterview = async (req: Request, res: Response, next: NextFun
   }
 };
 
-// Tüm mülakatları listeleme
+// Tüm oluşturduğumuz mülakatları listeleme
 export const listInterviews = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const interviews = await Interview.find({ createdBy: req.body.adminId });
