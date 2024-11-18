@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import Interview from '../models/Interview';
 import Application from '../models/Application';
+const baseUrl = process.env.BASE_URL || 'http://localhost:5174'; // BASE_URL .env'den alınır
 
 // Mevcut mülakatları listeleme (aktif olanlar)
 export const listActiveInterviews = async (req: Request, res: Response): Promise<void> => {
@@ -18,7 +19,7 @@ export const getInterviewByLink = async (req: Request, res: Response): Promise<v
 
   try {
 
-    const interview = await Interview.findOne({ link: `http://localhost:5174/apply/${uniqueId}` });
+    const interview = await Interview.findOne({ link: `${baseUrl}/apply/${uniqueId}` });
 
 
     if (!interview) {
